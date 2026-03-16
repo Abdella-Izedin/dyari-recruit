@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دياري — وايرفريم نظام الاستقطاب الذكي</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;color:#1c2833;line-height:1.7;background:#f5f5f0;padding:20px}
+.container{max-width:900px;margin:0 auto}
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;position:sticky;top:0;background:#f5f5f0;padding:10px 0;z-index:10}
+.tab{padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.tab:hover{background:#eee}
+.tab.active{background:#1a1a2e;color:#c9a84c;border-color:#1a1a2e}
+.sec{display:none}.sec.active{display:block}
+h2{font-size:18px;color:#1a1a2e;margin:12px 0 8px;padding-bottom:6px;border-bottom:2px solid #c9a84c;display:inline-block}
+h3{font-size:14px;color:#c9a84c;background:#1a1a2e;padding:8px 14px;border-radius:8px;margin:16px 0 10px}
+.sub{font-size:13px;color:#666;margin-bottom:12px}
+.step{display:flex;gap:10px;margin-bottom:8px;font-size:14px;align-items:flex-start}
+.sn{width:28px;height:28px;border-radius:50%;background:#1a1a2e;color:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:700}
+.sn-g{background:#27AE60;color:#fff}
+.sn-b{background:#2E86C1;color:#fff}
+.ar{text-align:center;color:#999;font-size:14px;margin:2px 0}
+.wire{border:2px solid #ccc;border-radius:12px;margin:14px 0;overflow:hidden;background:#fff}
+.wire-h{background:#1a1a2e;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.wire-h .logo{color:#c9a84c;font-weight:700;font-size:15px}
+.wire-h .nav span{color:#888;font-size:11px;margin-left:12px}
+.wire-h .nav .ac{color:#c9a84c}
+.wire-b{padding:20px}
+.input-mock{background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:12px;color:#999;margin-bottom:6px;width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.label{font-size:11px;color:#888;margin-bottom:3px;font-weight:600}
+.upload-zone{border:3px dashed #c9a84c;border-radius:12px;padding:24px;text-align:center;background:rgba(201,168,76,0.03);margin:10px 0}
+.upload-zone .icon{font-size:36px;margin-bottom:8px}
+.upload-zone .title{font-size:15px;font-weight:600;color:#1a1a2e}
+.upload-zone .formats{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.upload-zone .fmt{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600}
+.fmt-zip{background:#1a1a2e;color:#c9a84c}
+.fmt-pdf{background:#eee;color:#555}
+.btn{background:#1a1a2e;color:#c9a84c;padding:10px 28px;border-radius:8px;font-size:14px;font-weight:600;display:inline-block;margin:8px 0}
+.btn-o{background:transparent;color:#1a1a2e;border:1px solid #ccc;padding:6px 14px;border-radius:8px;font-size:12px;display:inline-block}
+.file-list{border:1px solid #ddd;border-radius:8px;padding:10px;margin:10px 0}
+.file-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f9f9f9;border-radius:6px;margin-bottom:4px;font-size:12px}
+.file-item .found{color:#27AE60;font-weight:600;font-size:11px}
+.file-total{background:#e8f4fd;padding:8px;border-radius:6px;text-align:center;font-size:13px;color:#2E86C1;font-weight:600;margin-top:6px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:#f5f5f5;padding:12px;border-radius:8px;text-align:center}
+.stat .n{font-size:24px;font-weight:700;color:#1a1a2e}
+.stat .l{font-size:11px;color:#888}
+.stat-s{border-right:4px solid #27AE60}.stat-w{border-right:4px solid #E67E22}.stat-d{border-right:4px solid #E74C3C}
+.cand{padding:10px;border-bottom:1px solid #eee}
+.cand:last-child{border:none}
+.cand-g{background:rgba(39,174,96,0.04)}
+.cand-r{background:rgba(231,76,60,0.03)}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.bg-g{background:#e8f8f0;color:#27AE60}
+.bg-y{background:#fef5e7;color:#E67E22}
+.bg-r{background:#fdedec;color:#E74C3C}
+.source{font-size:10px;background:#f0f0f0;padding:2px 6px;border-radius:4px;color:#888}
+.tip{background:#e8f4fd;border-radius:8px;padding:12px;margin:10px 0;font-size:13px;color:#2E86C1;border-right:4px solid #2E86C1}
+.warn{background:#fef5e7;border-radius:8px;padding:12px;margin:10px 0;font-size:13px;color:#E67E22;border-right:4px solid #E67E22}
+.progress{background:#eee;border-radius:8px;height:12px;overflow:hidden;margin:8px 0}
+.progress-fill{background:#c9a84c;height:100%;border-radius:8px;width:47%}
+.detail-row{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #f0f0f0;font-size:13px}
+.detail-row:last-child{border:none}
+.success-msg{background:#e8f8f0;color:#27AE60;padding:10px;border-radius:8px;text-align:center;font-size:13px;font-weight:600;margin-top:10px}
+.avatar{width:48px;height:48px;border-radius:50%;background:#1a1a2e;color:#c9a84c;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="container">
+<div style="text-align:center;margin-bottom:20px">
+  <div style="font-size:24px;font-weight:700;color:#1a1a2e">دياري للاستقطاب الذكي</div>
+  <div style="font-size:14px;color:#888">وايرفريم المرحلة الأولى — 8 شاشات</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="sw(this,'t1')">التدفق الكامل</div>
+  <div class="tab" onclick="sw(this,'t2')">صفحة الوظائف</div>
+  <div class="tab" onclick="sw(this,'t3')">نموذج التقديم</div>
+  <div class="tab" onclick="sw(this,'t4')">لوحة HR</div>
+  <div class="tab" onclick="sw(this,'t5')">رفع ZIP + ملفات</div>
+  <div class="tab" onclick="sw(this,'t6')">جاري الفرز</div>
+  <div class="tab" onclick="sw(this,'t7')">النتائج</div>
+  <div class="tab" onclick="sw(this,'t8')">تفاصيل مرشح</div>
+</div>
+
+<!-- ===== TAB 1: FLOW ===== -->
+<div id="t1" class="sec active">
+<h2>التدفق الكامل — من البداية للنهاية</h2>
+
+<h3>المسار A: مرشح يقدّم من الموقع (تلقائي)</h3>
+<div class="step"><div class="sn sn-g">1</div><div>مرشح يدخل صفحة الوظائف ← يشوف الوظائف المتاحة</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-g">2</div><div>يضغط "قدّم الآن" ← تفتح صفحة الوظيفة + نموذج التقديم</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-g">3</div><div>يملأ بياناته (اسم، جوال، إيميل، مدينة، خبرة، إقامة) + يرفع سيرته PDF/Word</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-g">4</div><div>يضغط "إرسال" ← يشوف "تم استلام طلبك" ← <b>انتهى دور المرشح</b></div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn">5</div><div>السيرة تدخل النظام تلقائياً وتظهر في لوحة HR كـ "متقدم جديد"</div></div>
+
+<h3>المسار B: HR يحمّل سير من المنصات الأخرى</h3>
+<div class="step"><div class="sn sn-b">1</div><div>HR ينشر الوظيفة على LinkedIn / Indeed / طاقات / صبار (يدوياً على كل منصة)</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">2</div><div>يتقدم مرشحين ← سيرهم تتجمع داخل كل منصة</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">3</div><div><b>HR يحمّل السير من المنصة:</b><br>• LinkedIn / Indeed ← يحمّل كل السير كـ <b>ملف ZIP</b> دفعة واحدة<br>• طاقات / صبار ← يحمّل السير كملفات PDF فردية</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">4</div><div>يدخل لوحة التحكم ← قسم "رفع وفرز"</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">5</div><div>يختار الوظيفة المستهدفة + يختار المصدر (LinkedIn / Indeed / طاقات...)</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">6</div><div><b>يرفع:</b> ملف ZIP (فيه عشرات السير) أو عدة ملفات PDF أو ملف واحد</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn sn-b">7</div><div><b>النظام يفك ZIP تلقائياً</b> ← يكتشف كل ملفات PDF/Word بالداخل ← يعرض "تم اكتشاف 47 سيرة"</div></div>
+
+<h3>بعد الرفع (المسارين A + B)</h3>
+<div class="step"><div class="sn">8</div><div>HR يضغط <b>"ابدأ الفرز بالذكاء الاصطناعي"</b></div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn">9</div><div>شاشة تقدم: "جاري فرز 23 من 49..." مع شريط تقدم متحرك</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn">10</div><div>شاشة النتائج: كل المرشحين مرتبين بنسبة التطابق<br>أخضر = مطابق | أصفر = جزئي | أحمر = غير مناسب<br>مع: المصدر (ZIP من LinkedIn / طاقات / نموذج الموقع) + أسباب التقييم</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn">11</div><div>HR يضغط على مرشح ← يشوف تفاصيله + ملخص AI + يقدر يعرض سيرته الأصلية</div></div>
+<div class="ar">↓</div>
+<div class="step"><div class="sn">12</div><div><b>تصدير Excel</b> بكل النتائج مرتبة</div></div>
+
+<div class="tip"><b>النقطة الذكية:</b> كل وظيفة لها رابط مباشر — تحطه في أي إعلان (LinkedIn, تويتر, واتساب) ← المرشح يضغط ← يوصل لنموذج التقديم ← السيرة تدخل تلقائياً. يعني نقطة تجميع واحدة لكل المصادر.</div>
+</div>
+
+<!-- ===== TAB 2: JOBS PAGE ===== -->
+<div id="t2" class="sec">
+<h2>شاشة 1: صفحة الوظائف (يشوفها المرشح)</h2>
+<div class="wire">
+  <div class="wire-h"><span class="logo">دياري العقارية</span><span class="nav"><span>الرئيسية</span><span>من نحن</span><span class="ac">الوظائف</span></span></div>
+  <div class="wire-b">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:20px;font-weight:700;color:#1a1a2e">انضم لفريق دياري</div>
+      <div style="font-size:13px;color:#888">نبحث عن كفاءات طموحة تشاركنا بناء مستقبل التطوير العقاري</div>
+    </div>
+    <div class="grid2">
+      <div style="border:1px solid #eee;border-right:4px solid #c9a84c;border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px">مهندس معماري</div>
+        <div style="font-size:12px;color:#888;margin:4px 0 8px">الرياض | دوام كامل | 3+ سنوات</div>
+        <div class="btn" style="font-size:12px;padding:6px 14px">قدّم الآن ←</div>
+      </div>
+      <div style="border:1px solid #eee;border-right:4px solid #c9a84c;border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px">محاسب أول</div>
+        <div style="font-size:12px;color:#888;margin:4px 0 8px">الرياض | دوام كامل | 4+ سنوات</div>
+        <div class="btn" style="font-size:12px;padding:6px 14px">قدّم الآن ←</div>
+      </div>
+      <div style="border:1px solid #eee;border-right:4px solid #c9a84c;border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px">مدير مشاريع إنشائية</div>
+        <div style="font-size:12px;color:#888;margin:4px 0 8px">الرياض | دوام كامل | 5+ سنوات</div>
+        <div class="btn" style="font-size:12px;padding:6px 14px">قدّم الآن ←</div>
+      </div>
+      <div style="border:1px solid #eee;border-right:4px solid #c9a84c;border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:14px">مصمم داخلي</div>
+        <div style="font-size:12px;color:#888;margin:4px 0 8px">الرياض | دوام كامل | 2+ سنوات</div>
+        <div class="btn" style="font-size:12px;padding:6px 14px">قدّم الآن ←</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 3: APPLICATION FORM ===== -->
+<div id="t3" class="sec">
+<h2>شاشة 2: نموذج التقديم (يشوفها المرشح)</h2>
+<div class="wire">
+  <div class="wire-h"><span class="logo">دياري العقارية</span><span class="nav"><span class="ac">← رجوع للوظائف</span></span></div>
+  <div class="wire-b">
+    <div style="font-size:18px;font-weight:700;color:#1a1a2e">مهندس معماري</div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px;padding-bottom:10px;border-bottom:1px solid #eee">الرياض | دوام كامل | 3+ سنوات | AutoCAD, Revit مطلوب</div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px;color:#1a1a2e">قدّم طلبك</div>
+    <div class="grid2">
+      <div><div class="label">الاسم الكامل *</div><div class="input-mock">أدخل اسمك الكامل</div></div>
+      <div><div class="label">رقم الجوال *</div><div class="input-mock" style="direction:ltr">05XXXXXXXX</div></div>
+    </div>
+    <div class="grid2">
+      <div><div class="label">البريد الإلكتروني *</div><div class="input-mock">example@email.com</div></div>
+      <div><div class="label">المدينة *</div><div class="input-mock">▼ الرياض / جدة / الدمام / أخرى</div></div>
+    </div>
+    <div class="grid2">
+      <div><div class="label">سنوات الخبرة *</div><div class="input-mock">▼ أقل من سنة / 1-3 / 3-5 / 5-10 / +10</div></div>
+      <div><div class="label">الإقامة *</div><div class="input-mock">▼ سعودي / مقيم بالمملكة / خارج المملكة</div></div>
+    </div>
+    <div class="label" style="margin-top:8px">السيرة الذاتية * (PDF أو Word)</div>
+    <div style="border:2px dashed #ccc;border-radius:8px;padding:20px;text-align:center;font-size:13px;color:#888;margin-bottom:8px">📄 اسحب الملف هنا أو اضغط للاختيار<br><span style="font-size:11px">PDF, DOC, DOCX — حد أقصى 5MB</span></div>
+    <div style="text-align:center"><div class="btn" style="padding:12px 48px">إرسال الطلب ←</div></div>
+    <div class="success-msg" style="margin-top:12px">✓ تم استلام طلبك بنجاح! سنتواصل معك قريباً</div>
+    <div style="text-align:center;font-size:11px;color:#999;font-style:italic;margin-top:4px">↑ تظهر بعد الضغط على إرسال</div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 4: HR DASHBOARD ===== -->
+<div id="t4" class="sec">
+<h2>شاشة 3: لوحة تحكم HR</h2>
+<div style="font-size:12px;color:#888;margin-bottom:8px">محمية بكلمة مرور — HR فقط</div>
+<div class="wire">
+  <div class="wire-h"><span class="logo">دياري — لوحة الاستقطاب</span><span class="nav"><span class="ac">الرئيسية</span><span>رفع وفرز</span><span>النتائج</span></span></div>
+  <div class="wire-b">
+    <div class="stats">
+      <div class="stat"><div class="n">47</div><div class="l">إجمالي المتقدمين</div></div>
+      <div class="stat"><div class="n">12</div><div class="l">مطابق للشروط</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">وظائف نشطة</div></div>
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">الوظائف النشطة</div>
+    <div style="border:1px solid #eee;border-radius:8px;overflow:hidden">
+      <div style="padding:10px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">مهندس معماري</span><div><span class="badge bg-g">18 متقدم</span> <span class="btn-o" style="margin-right:6px">عرض ←</span></div></div>
+      <div style="padding:10px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">محاسب أول</span><div><span class="badge bg-y">14 متقدم</span> <span class="btn-o" style="margin-right:6px">عرض ←</span></div></div>
+      <div style="padding:10px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">مدير مشاريع إنشائية</span><div><span class="badge bg-y">9 متقدم</span> <span class="btn-o" style="margin-right:6px">عرض ←</span></div></div>
+      <div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">مصمم داخلي</span><div><span style="font-size:12px;color:#888">6 متقدم</span> <span class="btn-o" style="margin-right:6px">عرض ←</span></div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px"><div class="btn">رفع وفرز سير ذاتية ←</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 5: ZIP UPLOAD ===== -->
+<div id="t5" class="sec">
+<h2>شاشة 4: رفع وفرز — تدعم ZIP + ملفات متعددة</h2>
+<div style="font-size:12px;color:#888;margin-bottom:8px">⭐ هذي الشاشة الأهم — HR يرفع فيها السير من أي مصدر</div>
+<div class="wire">
+  <div class="wire-h"><span class="logo">دياري — رفع وفرز</span><span class="nav"><span>الرئيسية</span><span class="ac">رفع وفرز</span><span>النتائج</span></span></div>
+  <div class="wire-b">
+    <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:12px">رفع سير ذاتية وفرزها بالذكاء الاصطناعي</div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div><div class="label">اختر الوظيفة المستهدفة *</div><div class="input-mock">▼ مهندس معماري — الرياض</div></div>
+      <div><div class="label">مصدر السير الذاتية</div><div class="input-mock">▼ LinkedIn / Indeed / طاقات / صبار / Bayt / أخرى</div></div>
+    </div>
+
+    <div class="upload-zone">
+      <div class="icon">📦</div>
+      <div class="title">اسحب الملفات هنا أو اضغط للاختيار</div>
+      <div style="font-size:13px;color:#888;margin:6px 0">يدعم جميع الصيغ:</div>
+      <div class="formats">
+        <span class="fmt fmt-zip">📦 ملف ZIP (عشرات السير دفعة واحدة)</span>
+        <span class="fmt fmt-pdf">📄 ملفات PDF</span>
+        <span class="fmt fmt-pdf">📝 ملفات Word</span>
+        <span class="fmt fmt-pdf">📁 عدة ملفات دفعة واحدة</span>
+      </div>
+    </div>
+
+    <div class="file-list">
+      <div style="font-weight:700;margin-bottom:8px;font-size:13px">الملفات المرفوعة:</div>
+      <div class="file-item">
+        <span>📦 <b>linkedin_applicants.zip</b></span>
+        <span class="found">✓ تم اكتشاف 47 سيرة ذاتية بالداخل</span>
+      </div>
+      <div class="file-item">
+        <span>📄 <b>ahmed_al_otaibi_cv.pdf</b></span>
+        <span style="font-size:11px;color:#888">سيرة واحدة — رُفعت من طاقات</span>
+      </div>
+      <div class="file-item">
+        <span>📄 <b>nora_resume.docx</b></span>
+        <span style="font-size:11px;color:#888">سيرة واحدة — رُفعت من صبار</span>
+      </div>
+      <div class="file-total">المجموع: 49 سيرة ذاتية جاهزة للفرز</div>
+    </div>
+
+    <div style="text-align:center;margin-top:14px">
+      <div class="btn" style="padding:12px 36px;font-size:16px">ابدأ الفرز بالذكاء الاصطناعي ← 🤖</div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#888;margin-top:6px">مجاني بالكامل عبر Google Gemini — لا توجد تكاليف</div>
+  </div>
+</div>
+<div class="tip"><b>السيناريو الواقعي:</b> HR ينشر وظيفة على LinkedIn ← يتقدم 80 شخص ← يحمّل كل السير كـ ZIP ← يرفعه هنا ← النظام يفك الضغط ويفرز الـ 80 سيرة في دقائق ← يشوف أفضل 10 مرشحين فوراً.</div>
+</div>
+
+<!-- ===== TAB 6: PROCESSING ===== -->
+<div id="t6" class="sec">
+<h2>شاشة 5: جاري الفرز</h2>
+<div class="wire">
+  <div class="wire-h"><span class="logo">دياري — جاري الفرز</span></div>
+  <div class="wire-b" style="text-align:center;padding:40px 20px">
+    <div style="font-size:48px;margin-bottom:12px">🤖</div>
+    <div style="font-size:18px;font-weight:700;color:#1a1a2e">جاري فرز السير الذاتية...</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px">الذكاء الاصطناعي يقرأ ويحلل كل سيرة ذاتية</div>
+    <div style="max-width:400px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="color:#888">التقدم</span><span style="font-weight:700">23 من 49</span></div>
+      <div class="progress"><div class="progress-fill"></div></div>
+    </div>
+    <div style="margin-top:16px;font-size:13px">
+      <span style="color:#888">آخر سيرة تمت معالجتها:</span><br>
+      <span style="font-weight:600">فهد الحربي</span> — <span class="badge bg-g">92% مطابق ✓</span>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:#888">الوقت المتوقع: ~2 دقيقة</div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 7: RESULTS ===== -->
+<div id="t7" class="sec">
+<h2>شاشة 6: نتائج الفرز</h2>
+<div class="wire">
+  <div class="wire-h"><span class="logo">النتائج — مهندس معماري (49 متقدم)</span><span class="nav"><span class="ac">← رجوع</span></span></div>
+  <div class="wire-b">
+    <div class="stats">
+      <div class="stat stat-s"><div class="n" style="color:#27AE60">11</div><div class="l">مطابق (70%+)</div></div>
+      <div class="stat stat-w"><div class="n" style="color:#E67E22">15</div><div class="l">جزئي (40-70%)</div></div>
+      <div class="stat stat-d"><div class="n" style="color:#E74C3C">23</div><div class="l">غير مناسب</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="btn-o">↓ تصدير Excel</div>
+      <div class="btn-o">عرض المطابقين فقط</div>
+      <div class="btn-o">فلتر حسب المصدر</div>
+    </div>
+    <div style="border:1px solid #eee;border-radius:8px;overflow:hidden">
+      <div class="cand cand-g">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-weight:700">فهد عبدالله الحربي</span>
+          <span class="badge bg-g">92%</span>
+          <span class="source">LinkedIn ZIP</span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:3px">الرياض | بكالوريوس هندسة معمارية | 5 سنوات | AutoCAD, Revit, SketchUp</div>
+        <div style="font-size:12px;color:#27AE60;margin-top:3px">✓ داخل المملكة ✓ مؤهل مطابق ✓ خبرة كافية ✓ مهارات مطلوبة</div>
+      </div>
+      <div class="cand cand-g">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-weight:700">نورة سعد الدوسري</span>
+          <span class="badge bg-g">85%</span>
+          <span class="source">طاقات</span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:3px">الرياض | ماجستير تصميم معماري | 4 سنوات | Revit, 3ds Max</div>
+        <div style="font-size:12px;color:#27AE60;margin-top:3px">✓ داخل المملكة ✓ مؤهل أعلى ✓ خبرة كافية — ينقصها AutoCAD</div>
+      </div>
+      <div class="cand">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-weight:700">عمر خالد الزهراني</span>
+          <span class="badge bg-y">58%</span>
+          <span class="source">نموذج الموقع</span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:3px">جدة | بكالوريوس هندسة مدنية (ليس معماري) | 6 سنوات</div>
+        <div style="font-size:12px;color:#E67E22;margin-top:3px">✓ داخل المملكة ✓ خبرة كافية — ✗ تخصص مختلف ✗ مدينة مختلفة</div>
+      </div>
+      <div class="cand cand-r">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-weight:700">محمد أحمد</span>
+          <span class="badge bg-r">22%</span>
+          <span class="source">Indeed ZIP</span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-top:3px">القاهرة، مصر | دبلوم رسم هندسي | سنة واحدة</div>
+        <div style="font-size:12px;color:#E74C3C;margin-top:3px">✗ خارج المملكة ✗ مؤهل غير كافي ✗ خبرة أقل من المطلوب</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:#999">تم الفرز بواسطة الذكاء الاصطناعي — النتائج استرشادية والقرار النهائي لفريق HR</div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 8: CANDIDATE DETAIL ===== -->
+<div id="t8" class="sec">
+<h2>شاشة 7: تفاصيل مرشح</h2>
+<div class="wire">
+  <div class="wire-h"><span class="logo">تفاصيل المرشح</span><span class="nav"><span class="ac">← رجوع للنتائج</span></span></div>
+  <div class="wire-b">
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+      <div class="avatar">فح</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">فهد عبدالله الحربي</div>
+        <div style="font-size:13px;color:#888">مهندس معماري — الرياض</div>
+        <div style="margin-top:4px"><span class="badge bg-g" style="font-size:13px;padding:4px 12px">92% مطابق</span> <span class="source" style="font-size:11px">المصدر: LinkedIn ZIP</span></div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div style="background:#f5f5f5;padding:10px;border-radius:8px"><div style="font-size:11px;color:#888">الجوال</div><div style="font-weight:700;direction:ltr;display:inline-block">0551234567</div></div>
+      <div style="background:#f5f5f5;padding:10px;border-radius:8px"><div style="font-size:11px;color:#888">الإيميل</div><div style="font-weight:700;direction:ltr;display:inline-block;font-size:13px">fahad.harbi@email.com</div></div>
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">تقييم الذكاء الاصطناعي</div>
+    <div style="border:1px solid #eee;border-radius:8px;overflow:hidden">
+      <div class="detail-row"><span>الموقع: داخل المملكة (الرياض)</span><span style="color:#27AE60;font-weight:600">✓ مطابق</span></div>
+      <div class="detail-row"><span>المؤهل: بكالوريوس هندسة معمارية</span><span style="color:#27AE60;font-weight:600">✓ مطابق</span></div>
+      <div class="detail-row"><span>الخبرة: 5 سنوات (المطلوب 3+)</span><span style="color:#27AE60;font-weight:600">✓ أعلى من المطلوب</span></div>
+      <div class="detail-row"><span>المهارات: AutoCAD, Revit, SketchUp</span><span style="color:#27AE60;font-weight:600">✓ 3 من 3</span></div>
+      <div class="detail-row"><span>اللغات: عربي + إنجليزي</span><span style="color:#27AE60;font-weight:600">✓</span></div>
+    </div>
+    <div style="font-weight:700;margin:12px 0 6px">ملخص AI</div>
+    <div style="background:#f5f5f5;border-radius:8px;padding:12px;font-size:13px">مرشح قوي جداً. مهندس معماري بخبرة 5 سنوات في شركات تطوير عقاري بالرياض. يتقن جميع البرامج المطلوبة. عمل على مشاريع سكنية فاخرة. يُنصح بالمقابلة الشخصية بشدة.</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <div class="btn" style="font-size:13px">عرض السيرة الذاتية ↓</div>
+      <div class="btn-o">نسخ بيانات التواصل</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<script>
+function sw(el,id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
